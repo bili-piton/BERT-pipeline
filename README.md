@@ -1,6 +1,6 @@
 # BERT-pipeline
 
-## This is a code made for NLP analyisis of scientific texts. You can add any number or kinds of papers you want, and the code is (apparently) quite flexible.
+## This is a code made for NLP analyisis of scientific texts. You can add any number or kinds of papers you want, and the code is (I hope) quite flexible.
 There workflow is simple:
   1. Have a folder with papers, or you can download mine from OSF if you want to recreate my results.
   2. Pick the terms you would like to embedd.
