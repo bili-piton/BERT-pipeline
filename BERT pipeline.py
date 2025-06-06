@@ -1,3 +1,7 @@
+##This is the main code for the extraction and embedding of terminology in scientific literature, parts of this code were created with the help of AI
+#the code is adjusted to my own research questions, but you can adjust it by replacing terms with your own and using another dataset 
+
+
 import os
 import re
 import torch
@@ -13,6 +17,8 @@ import nltk
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import silhouette_score
+
+
 
 # Download NLTK resources
 nltk.download('stopwords')
@@ -31,8 +37,8 @@ model = BertModel.from_pretrained(model_name)
 model.eval()
 
 # Parameters
-window_size = 20  # Sliding window size
-folder_paths = ['test']  # List of folders with PDFs to process
+window_size = 20  # window size
+folder_paths = ['Papers']  # List of folders with PDFs to process
 
 # Terms to analyze
 terms = ['occupation', 'layer', 'level', 'horizon', 'lithic', 'bone', 'charcoal', 'flake']
