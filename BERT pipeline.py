@@ -1,3 +1,4 @@
+###install the necessary lybraries first
 import os
 import re
 import sys
@@ -11,6 +12,9 @@ from nltk.stem import WordNetLemmatizer
 import nltk
 import pandas as pd
 import umap 
+
+
+
 
 ## ---------------- Setup ----------------
 nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('words')
@@ -27,7 +31,7 @@ model.eval()
 print("Model loaded and set to evaluation mode.")
 
 max_length = 512
-folder_paths = ['Papers']
+folder_paths = ['Papers'] ###set up your own folder path 
 terms = ['occupation', 'layer', 'level', 'horizon', 'lithic', 'bone', 'flake', 'charcoal']
 
 # ----------- Helper functions ----------
@@ -80,6 +84,7 @@ def is_references_section(text):
     return any(k in tl for k in refs)
 
 # --------------- One full run for a given window size ---------------
+### --------------Nested loops streamlined with the use of OpenAIs ChatGPT-----
 def build_dataset_for_window(window_size):
     print(f"\n=== Building dataset (window_size={window_size}) ===")
 
@@ -156,25 +161,6 @@ def build_dataset_for_window(window_size):
     out_csv = f'final_all_{window_size}.csv'
     embeddings_df.to_csv(out_csv, index=False)
     print(f"Saved dataset → {out_csv}")
-
-    # ---------- UMAP projection ----------
-#     print("Running UMAP dimensionality reduction...")
-#     reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
-#     umap_embeddings = reducer.fit_transform(all_embeddings)
-
-#     plt.figure(figsize=(10, 8))
-#     unique_terms = sorted(set(term_labels))
-#     colors = plt.cm.get_cmap('tab10', len(unique_terms))
-#     for i, term in enumerate(unique_terms):
-#         idx = [j for j, t in enumerate(term_labels) if t == term]
-#         plt.scatter(umap_embeddings[idx, 0], umap_embeddings[idx, 1],
-#                     c=[colors(i)], label=term, alpha=0.7)
-#     plt.title(f"UMAP Projection (window_size={window_size})")
-#     plt.legend()
-#     plt.tight_layout()
-#     plt.savefig(f"umap_plot_{window_size}.png", dpi=300)
-#     plt.show()
-#     print(f"UMAP plot saved → umap_plot_{window_size}.png")
 
 # ---------------- Run for selected windows ----------------
 for ws in [20, 30, 40, 50]:
