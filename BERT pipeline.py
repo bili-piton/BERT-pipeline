@@ -84,7 +84,6 @@ def is_references_section(text):
     return any(k in tl for k in refs)
 
 # --------------- One full run for a given window size ---------------
-### --------------Nested loops streamlined with the use of OpenAIs ChatGPT-----
 def build_dataset_for_window(window_size):
     print(f"\n=== Building dataset (window_size={window_size}) ===")
 
