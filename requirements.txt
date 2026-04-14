@@ -1,0 +1,8 @@
+torch
+transformers
+pymupdf
+nltk
+numpy
+pandas
+umap-learn
+matplotlib
