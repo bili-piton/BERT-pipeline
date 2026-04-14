@@ -4,7 +4,7 @@ A Python pipeline for extracting contextual word embeddings from scientific PDFs
 
 This repository accompanies:
 
-Galfi, J. & Cascalheira, J. (forthcoming). Clarifying Stratigraphic Terminology in Palaeolithic Archaeology Using Natural Language Processing. *Advances in Archaeological Practice*.
+Galfi, J. & Cascalheira, J. (forthcoming). Clarifying Stratigraphic Terminology in Palaeolithic Archaeology Using Natural Language Processing.
 
 ## What it does
 
@@ -80,7 +80,7 @@ If you use this pipeline, please cite:
 @article{galfi_cascalheira_forthcoming,
   author = {Galfi, Jovan and Cascalheira, Jo\~{a}o},
   title = {Clarifying Stratigraphic Terminology in {Palaeolithic} Archaeology Using Natural Language Processing},
-  journal = {Advances in Archaeological Practice},
+  journal = {},
   year = {forthcoming}
 }
 ```
