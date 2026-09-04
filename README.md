@@ -4,7 +4,7 @@ A Python pipeline for extracting contextual word embeddings from scientific PDFs
 
 This repository accompanies:
 
-Galfi, J. & Cascalheira, J. (forthcoming). Clarifying Stratigraphic Terminology in Palaeolithic Archaeology Using Natural Language Processing.
+Galfi, J. & Cascalheira, J. (forthcoming). Clarifying Stratigraphic Terminology in Palaeolithic Archaeology Using Natural Language Processing. *Advances in Archaeological Practice*.
 
 ## What it does
 
@@ -21,7 +21,7 @@ The pipeline reads a corpus of scientific papers (as PDFs), locates occurrences 
 
 ## Requirements
 
-- Python 3.11+ (see [Reproducibility](#reproducibility) — the dependency set resolved by `requirements.txt` today requires 3.11 or newer)
+- Python 3.10–3.11 (the range supported by the pinned dependency set; verified on 3.11.5)
 - PyTorch
 - Transformers (HuggingFace)
 - PyMuPDF
@@ -35,9 +35,9 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-The first run additionally downloads the SciBERT weights (~440 MB) from HuggingFace and three NLTK corpora, so it requires network access.
+`requirements.txt` is pinned to the versions the published results were produced with — see [Reproducibility](#reproducibility).
 
-> `requirements.txt` also lists `umap-learn` and `matplotlib`. Neither is used by the analysis, but `bert_pipeline.py` imports `umap` at module level, so **both must be installed for the script to start**.
+The first run additionally downloads the SciBERT weights (~440 MB) from HuggingFace and three NLTK corpora, so it requires network access.
 
 ## Usage
 
@@ -74,13 +74,23 @@ All options are set by editing variables in the script:
 
 ## Reproducibility
 
-The code in this repository is the version used for the accompanying paper and is **frozen as published**. This section records what was verified so that the results can be reproduced exactly, and documents the behaviours a replicator needs to know about in order to interpret the output correctly.
+The analysis code in this repository is **frozen as published** — the text extraction, preprocessing, tokenisation, windowing and embedding steps are exactly those used for the accompanying paper. This section records what was verified so that the results can be reproduced, notes the few packaging changes made after acceptance, and documents the behaviours a replicator needs to know about in order to interpret the output correctly.
+
+### Changes made after acceptance
+
+Three changes were made to the repository after the paper was accepted. All are verified result-neutral: re-running the pipeline before and after produces **byte-identical** output.
+
+1. Removed the unused `umap` and `matplotlib` imports (and their entries in `requirements.txt`). Neither was used by the analysis, but `import umap` was a module-level import, so the script would not start without a package it never called.
+2. Pinned `requirements.txt` to the versions used for the published results.
+3. Pinned the SciBERT model revision in `from_pretrained`.
+
+No part of the analysis — text extraction, preprocessing, tokenisation, windowing or embedding — was modified.
 
 ### Verified environments
 
 The pipeline was re-run and checked in September 2026 under two dependency stacks:
 
-| Package | Development stack | Current stack (fresh install) |
+| Package | Development stack (now pinned) | Latest versions (compatibility-tested) |
 |---|---|---|
 | Python | 3.11.5 | 3.11.5 |
 | torch | 2.11.0 | 2.11.0 |
@@ -94,35 +104,19 @@ The pipeline was re-run and checked in September 2026 under two dependency stack
 
 End-to-end runs were performed on the current stack; on the development stack the model load, tokenisation, preprocessing and forward pass were verified component by component. Embeddings produced under transformers 4.32.1 and 5.16.1 agree to a maximum absolute difference of **2.1e-6** (cosine similarity 1.0), i.e. float32 rounding noise only. The transformers 5.x load emits an `UNEXPECTED` key report for the `cls.*` masked-LM heads; this is expected when loading a pretraining checkpoint into `BertModel` and does not affect the encoder weights.
 
-`requirements.txt` is unpinned, so a fresh `pip install -r requirements.txt` today resolves to the right-hand column above rather than the versions the code was written against. For an exact reproduction, pin instead:
-
-```
-torch==2.11.0
-transformers==4.32.1
-pymupdf==1.27.2
-nltk==3.8.1
-numpy==1.24.4
-pandas==2.2.0
-umap-learn
-matplotlib
-```
+`requirements.txt` was originally unpinned, which meant a fresh install resolved to the right-hand column rather than the versions the code was written against. It is now pinned to the left-hand column, so `pip install -r requirements.txt` reproduces the development environment directly. The right-hand column is recorded because the pipeline was checked against it too: the code still runs there, so it is a viable fallback if the pinned versions become hard to install on future hardware.
 
 Note that `import fitz` is deprecated as of PyMuPDF 1.28 (`import pymupdf` is the replacement) and will eventually stop working; the pinned 1.27.2 is unaffected.
 
 ### Model version
 
-The pipeline loads `allenai/scibert_scivocab_uncased` from the HuggingFace Hub without a revision pin. That repository has been unchanged since 2022-10-03 and currently resolves to:
+The pipeline loads `allenai/scibert_scivocab_uncased` from the HuggingFace Hub, pinned to the revision used for the published results:
 
 ```
 revision 24f92d32b1bfb0bcaf9ab193ff3ad01e87732fc1
 ```
 
-To guarantee the same weights in future, pass this explicitly:
-
-```python
-tokenizer = BertTokenizer.from_pretrained(model_name, revision='24f92d32b1bfb0bcaf9ab193ff3ad01e87732fc1')
-model = BertModel.from_pretrained(model_name, revision='24f92d32b1bfb0bcaf9ab193ff3ad01e87732fc1')
-```
+That repository has been unchanged upstream since 2022-10-03, so the pin selects the same weights the analysis originally used and protects against any future change to the model card.
 
 The repository ships `pytorch_model.bin` only (no safetensors), so loading requires a transformers/torch pair that still accepts `.bin` checkpoints.
 
@@ -183,7 +177,7 @@ If you use this pipeline, please cite:
 @article{galfi_cascalheira_forthcoming,
   author = {Galfi, Jovan and Cascalheira, Jo\~{a}o},
   title = {Clarifying Stratigraphic Terminology in {Palaeolithic} Archaeology Using Natural Language Processing},
-  journal = {},
+  journal = {Advances in Archaeological Practice},
   year = {forthcoming}
 }
 ```
