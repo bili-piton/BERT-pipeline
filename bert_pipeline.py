@@ -4,14 +4,12 @@ import re
 import sys
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
 from transformers import BertTokenizer, BertModel
 import fitz  # PyMuPDF
 from nltk.corpus import stopwords, words
 from nltk.stem import WordNetLemmatizer
 import nltk
 import pandas as pd
-import umap 
 
 
 
@@ -24,9 +22,11 @@ lemmatizer = WordNetLemmatizer()
 english_words = set(words.words())
 
 model_name = 'allenai/scibert_scivocab_uncased'
+# Pinned to the revision used for the published results (unchanged upstream since 2022-10-03)
+model_revision = '24f92d32b1bfb0bcaf9ab193ff3ad01e87732fc1'
 print(f"Loading model '{model_name}'...")
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertModel.from_pretrained(model_name)
+tokenizer = BertTokenizer.from_pretrained(model_name, revision=model_revision)
+model = BertModel.from_pretrained(model_name, revision=model_revision)
 model.eval()
 print("Model loaded and set to evaluation mode.")
 

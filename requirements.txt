@@ -1,8 +1,6 @@
-torch
-transformers
-pymupdf
-nltk
-numpy
-pandas
-umap-learn
-matplotlib
+torch==2.11.0
+transformers==4.32.1
+pymupdf==1.27.2
+nltk==3.8.1
+numpy==1.24.4
+pandas==2.2.0
