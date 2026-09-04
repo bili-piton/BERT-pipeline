@@ -74,7 +74,7 @@ All options are set by editing variables in the script:
 
 ## Reproducibility
 
-The analysis code in this repository is **frozen as published** — the text extraction, preprocessing, tokenisation, windowing and embedding steps are exactly those used for the accompanying paper. This section records what was verified so that the results can be reproduced, notes the few packaging changes made after acceptance, and documents the behaviours a replicator needs to know about in order to interpret the output correctly.
+The analysis code in this repository is **frozen as published** — the text extraction, preprocessing, tokenisation, windowing and embedding steps are exactly those used for the accompanying paper. This section records what was verified so that the results can be reproduced, and notes the few packaging changes made after acceptance.
 
 ### Changes made after acceptance
 
@@ -135,35 +135,6 @@ One caveat affects **row order rather than row content**. Input PDFs are iterate
 Inference runs on CPU only — the script never moves the model or inputs to a GPU/MPS device — and performs one forward pass per term occurrence with a batch size of 1. The four window sizes are produced by four independent passes, each of which re-opens every PDF and recomputes text extraction, preprocessing and tokenisation from scratch, so the full run costs roughly four times a single-window run.
 
 As a scale reference, a test corpus yielding ~4,800 term occurrences per window (~19,000 forward passes across all four window sizes) took about 7.5 minutes on an Apple M5 Max CPU, i.e. on the order of 40 windows per second. Runtime scales linearly with the number of term occurrences, so a full paper corpus should be budgeted in hours rather than minutes.
-
-## Known behaviour and limitations
-
-These are properties of the published code, verified empirically. They are documented here rather than changed, so that the released results remain reproducible.
-
-**Plural forms are not counted.** In `preprocess_text`, the `w in english_words` dictionary filter is applied to the *raw* token, while lemmatisation happens afterwards. NLTK's `words` corpus does not list the plural forms of the target terms, so `layers`, `levels`, `occupations`, `flakes`, `bones`, `horizons`, `lithics` and `charcoals` are all discarded before they can be lemmatised to their singular forms. Verified on a test corpus containing `flakes` 120 times: the `flake` term yields **zero** embeddings. Term counts therefore reflect singular usages only.
-
-**Only dictionary words survive preprocessing.** The same filter removes proper nouns, site names, most domain-specific compounds, and the fragments produced when a hyphenated word is split across a line break (`occupa-\ntion` becomes two non-words and is dropped).
-
-**Context windows are right-sided.** Each window starts at the target term and extends up to `window_size` tokens to its right; no left-hand context is included.
-
-**Windows do not cross 512-token chunk boundaries.** The token stream is cut into fixed 512-token chunks and terms are matched within each chunk, so a window near a chunk end is silently truncated. Measured on a test corpus, the proportion of occurrences receiving a shorter window than requested is approximately `window_size / 512`:
-
-| Window size | Occurrences with a shortened window |
-|---|---|
-| 20 | 4.3% |
-| 30 | 6.5% |
-| 40 | 8.8% |
-| 50 | 11.1% |
-
-Terms that SciBERT splits into multiple WordPieces — `lithic` (`lith` + `##ic`), `flake` (`fl` + `##ake`) and `charcoal` (`char` + `##coal`) — additionally lose roughly one occurrence per chunk boundary crossed, because the pieces fall on either side of the cut.
-
-**Windows are encoded without `[CLS]`/`[SEP]`.** Special tokens are added once around the whole document and the windows are sliced out of the interior, so almost every window reaches the model as a bare token sequence.
-
-**Subword matching has no boundary guard.** A term's WordPiece sequence can match inside a longer word (`level` inside `levelling`). Checked exhaustively against the full post-filter vocabulary, this affects at most 22 word types per term (`bone`: 22, `level`: 10, `horizon`: 5, `layer`/`flake`: 2, `occupation`/`charcoal`: 1, `lithic`: 0) — items such as `bonedog`, `layerage` and `horizonward` that do not occur in this literature. The practical impact is negligible.
-
-**Output carries no provenance.** Each CSV row is 768 embedding dimensions plus a `Term` label. There is no column identifying the source PDF or the position of the occurrence, so rows cannot be traced back to individual papers. (`paper_indices` is populated internally but never written out, and records the folder name rather than the filename.)
-
-**Reference-section detection is coarse.** A document is cut off as soon as `references`, `bibliography` or `works cited` appears anywhere in the current 5-page block — including in running text. When this triggers, the whole block is discarded, so body text preceding the heading in that block is not analysed.
 
 ## Replication
 
